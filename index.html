@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VÍA — FIFA World Cup 2026 Fan Sync &amp; Assist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#050807; --panel:#0C0F0D; --panel-2:#121614; --panel-3:#1B211D;
+    --marigold:#F2A93B; --marigold-dim:#B9822F; --trophy-gold:#E0B24A;
+    --sage:#5FAE7C; --coral:#E8543D;
+    --chalk:#F7F4EC; --chalk-dim:#9AA39B;
+    --line: rgba(247,244,236,0.08);
+    --font-display:'Oswald', sans-serif; --font-body:'IBM Plex Sans', sans-serif; --font-mono:'JetBrains Mono', monospace;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{ background:var(--ink); color:var(--chalk); font-family:var(--font-body); -webkit-font-smoothing:antialiased; }
+  body.light{ --ink:#F3F1EA; --panel:#FFFFFF; --panel-2:#F6F3EC; --panel-3:#ECE7DA; --chalk:#1B2430; --chalk-dim:#5C6B7A; --line:rgba(20,20,20,0.08); }
+  body.high-contrast{ --ink:#000; --panel:#0A0A0A; --panel-2:#141414; --panel-3:#1C1C1C; --chalk-dim:#E8E8E8; --line: rgba(255,255,255,0.25); }
+  body.text-lg{ font-size:17px; }
+  a,button,select,input{ font-family:inherit; }
+
+  .shell{ display:flex; min-height:100vh; }
+
+  .sidebar{ width:230px; flex:none; background:var(--panel); border-right:1px solid var(--line);
+    display:flex; flex-direction:column; padding:20px 14px; gap:22px; }
+  .brand{ display:flex; align-items:center; gap:12px; padding:4px 6px 10px; position:relative; }
+  .brand .numeral26{ font-family:var(--font-display); font-weight:700; font-size:40px; letter-spacing:-1px;
+    background:linear-gradient(180deg, var(--trophy-gold), var(--marigold-dim)); -webkit-background-clip:text; background-clip:text;
+    color:transparent; line-height:1; }
+  .brand .logo{ width:34px; height:34px; border-radius:9px; background:linear-gradient(135deg, var(--marigold), var(--coral));
+    display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; color:#241708; font-size:15px; }
+  .brand .name{ font-family:var(--font-display); font-weight:700; font-size:19px; letter-spacing:2px; }
+  .brand .name span{ color:var(--marigold); }
+  .brand .sub{ font-size:9.5px; color:var(--chalk-dim); font-family:var(--font-mono); letter-spacing:1px; margin-top:-2px; }
+
+  nav.navlist{ display:flex; flex-direction:column; gap:4px; }
+  .nav-item{ display:flex; align-items:center; gap:10px; background:none; border:none; color:var(--chalk-dim);
+    text-align:left; padding:11px 12px; border-radius:10px; font-size:13.5px; cursor:pointer; }
+  .nav-item:hover{ background:var(--panel-2); color:var(--chalk); }
+  .nav-item.active{ background:var(--panel-3); color:var(--marigold); font-weight:600; }
+  .nav-item .ico{ font-size:15px; width:18px; text-align:center; }
+
+  .sidebar-footer{ margin-top:auto; display:flex; flex-direction:column; gap:10px; }
+  .tele-card{ background:var(--panel-2); border:1px solid var(--line); border-radius:12px; padding:11px 13px; }
+  .tele-label{ font-family:var(--font-mono); font-size:9.5px; letter-spacing:1px; color:var(--chalk-dim); text-transform:uppercase; }
+  .tele-value{ font-family:var(--font-mono); font-size:14px; margin-top:4px; font-weight:700; }
+  .tele-value.good{ color:var(--sage); }
+  .tele-value.good::before{ content:"● "; }
+  .theme-row{ display:flex; align-items:center; justify-content:space-between; font-size:12px; color:var(--chalk-dim);
+    padding:2px 4px; }
+  .switch{ width:38px; height:20px; border-radius:20px; background:var(--panel-3); border:1px solid var(--line); position:relative; cursor:pointer; }
+  .switch::after{ content:""; position:absolute; width:14px; height:14px; border-radius:50%; background:var(--marigold);
+    top:2px; left:2px; transition:left .15s ease; }
+  .switch.on::after{ left:20px; }
+
+  .main{ flex:1; min-width:0; padding:22px 26px 40px; }
+  .topheader{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px; }
+  .topheader h1{ font-family:var(--font-display); font-weight:700; font-size:26px; letter-spacing:1px; margin:0; text-transform:uppercase; }
+  .header-badges{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .badge{ font-family:var(--font-mono); font-size:11.5px; padding:7px 12px; border-radius:20px; border:1px solid var(--line); background:var(--panel-2); }
+  .badge.alert{ color:var(--coral); border-color:rgba(232,84,61,0.4); }
+  select.badge-select, input.badge-select{ background:var(--panel-2); color:var(--chalk); border:1px solid var(--line);
+    border-radius:20px; padding:7px 12px; font-family:var(--font-mono); font-size:11.5px; cursor:pointer; }
+
+  .globalbar{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+  .globalbar select, .globalbar input, .globalbar .icon-btn{
+    background:var(--panel-2); color:var(--chalk); border:1px solid var(--line); border-radius:9px;
+    padding:8px 11px; font-size:12.5px; cursor:pointer; outline:none;
+  }
+  .globalbar input{ cursor:text; width:150px; }
+  .globalbar .icon-btn.active{ color:var(--marigold); border-color:var(--marigold-dim); }
+
+  .view{ display:flex; flex-direction:column; gap:18px; }
+
+  .ticker{ display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line);
+    border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; }
+  .ticker .cell{ background:var(--panel-2); padding:14px 16px; }
+  .ticker .label{ font-family:var(--font-mono); font-size:10px; letter-spacing:1.2px; color:var(--chalk-dim); text-transform:uppercase; margin-bottom:6px; }
+  .ticker .value{ font-family:var(--font-mono); font-size:20px; font-weight:700; color:var(--marigold); }
+  .ticker .value.sage{ color:var(--sage); } .ticker .value.coral{ color:var(--coral); }
+  .ticker .sub{ font-size:11px; color:var(--chalk-dim); margin-top:2px; }
+
+  .panel{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:18px; }
+  .panel h2{ font-family:var(--font-display); font-weight:600; font-size:14.5px; letter-spacing:1.2px; text-transform:uppercase; margin:0 0 4px 0; }
+  .panel .sub-h{ font-size:11.5px; color:var(--chalk-dim); margin:0 0 14px 0; }
+
+  .cmd-cards{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  @media (max-width:900px){ .cmd-cards{ grid-template-columns:1fr; } }
+  .alert-row{ display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--line); font-size:13px; }
+  .alert-row:last-child{ border-bottom:none; }
+  .sev{ font-family:var(--font-mono); font-size:9.5px; padding:3px 8px; border-radius:10px; }
+  .sev.high{ background:rgba(232,84,61,0.15); color:var(--coral); }
+  .sev.med{ background:rgba(242,169,59,0.15); color:var(--marigold); }
+  .sev.low{ background:rgba(95,174,124,0.15); color:var(--sage); }
+  .jump-card{ display:flex; flex-direction:column; gap:8px; }
+  .jump-card button{ align-self:flex-start; background:var(--marigold); color:#241708; border:none; border-radius:9px;
+    padding:9px 16px; font-family:var(--font-display); font-weight:600; letter-spacing:1px; font-size:11.5px; text-transform:uppercase; cursor:pointer; }
+
+  .assist-grid{ display:grid; grid-template-columns:1.05fr 1fr; gap:18px; align-items:start; }
+  @media (max-width:980px){ .assist-grid{ grid-template-columns:1fr; } }
+
+  .donut-wrap{ position:relative; width:100%; max-width:340px; aspect-ratio:1/1; margin:6px auto 10px; }
+  .ring{ position:absolute; border-radius:50%; top:50%; left:50%; transform:translate(-50%,-50%); }
+  .ring.outer{ width:100%; height:100%; }
+  .ring.mid{ width:70%; height:70%; }
+  .ring.inner{ width:40%; height:40%; }
+  .ring.core{ width:20%; height:20%; background:var(--panel); display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-size:9px; color:var(--chalk-dim); text-align:center; border:1px solid var(--line); }
+  .donut-overlay{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+  .gate-label{ position:absolute; transform:translate(-50%,-50%); font-family:var(--font-mono); font-size:10px;
+    color:var(--chalk); background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:2px 6px; white-space:nowrap; }
+  .gate-label.acc{ color:var(--sage); border-color:var(--sage); }
+
+  .form-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px; }
+  .form-row label{ font-size:10.5px; color:var(--chalk-dim); font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:5px; }
+  .form-row select, .form-row input{ width:100%; background:var(--panel-2); color:var(--chalk); border:1px solid var(--line);
+    border-radius:9px; padding:9px 10px; font-size:13px; }
+  .route-row{ display:flex; align-items:center; gap:10px; margin-top:12px; flex-wrap:wrap; }
+  .route-btn{ background:var(--marigold); color:#241708; border:none; border-radius:9px; padding:10px 18px;
+    font-family:var(--font-display); font-weight:600; letter-spacing:1px; font-size:12px; text-transform:uppercase; cursor:pointer; }
+  .checkbox-row{ display:flex; align-items:center; gap:8px; font-size:12px; color:var(--chalk-dim); margin-top:10px; }
+  .route-result{ margin-top:12px; font-size:12.5px; color:var(--chalk-dim); background:var(--panel-2); border:1px solid var(--line);
+    border-radius:10px; padding:10px 12px; display:none; }
+  .route-result.show{ display:block; }
+  .legend{ display:flex; flex-wrap:wrap; gap:10px 14px; margin-top:14px; font-size:10.5px; color:var(--chalk-dim); }
+  .legend span{ display:inline-flex; align-items:center; gap:5px; }
+  .legend i{ display:inline-block; width:9px; height:9px; border-radius:50%; }
+
+  .concierge{ display:flex; flex-direction:column; height:560px; }
+  .chat-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; gap:8px; flex-wrap:wrap; }
+  .chips{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+  .chip{ background:var(--panel-2); border:1px solid var(--line); color:var(--chalk-dim); border-radius:16px;
+    padding:6px 11px; font-size:11.5px; cursor:pointer; }
+  .chip:hover{ border-color:var(--marigold-dim); color:var(--chalk); }
+  .messages{ flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:12px; padding-right:2px; }
+  .msg-row{ display:flex; flex-direction:column; max-width:85%; }
+  .msg-row.user{ align-self:flex-end; align-items:flex-end; }
+  .msg-row.ai{ align-self:flex-start; align-items:flex-start; }
+  .msg{ padding:10px 13px; border-radius:14px; font-size:13px; line-height:1.5; }
+  .msg.user{ background:var(--marigold); color:#241708; border-bottom-right-radius:4px; font-weight:500; }
+  .msg.ai{ background:var(--panel-2); border:1px solid var(--line); color:var(--chalk); border-bottom-left-radius:4px; }
+  .msg.sys{ align-self:center; color:var(--chalk-dim); font-family:var(--font-mono); font-size:10.5px; }
+  .speak-btn{ background:none; border:none; color:var(--chalk-dim); font-size:11px; cursor:pointer; padding:3px 0; }
+  .speak-btn:hover{ color:var(--marigold); }
+  .typing{ display:flex; gap:4px; align-self:flex-start; padding:10px 13px; }
+  .typing span{ width:6px; height:6px; border-radius:50%; background:var(--chalk-dim); animation:blink 1.2s infinite ease-in-out; }
+  .typing span:nth-child(2){ animation-delay:.2s; } .typing span:nth-child(3){ animation-delay:.4s; }
+  @keyframes blink{ 0%,80%,100%{opacity:.25;} 40%{opacity:1;} }
+  .input-row{ display:flex; gap:8px; margin-top:12px; }
+  .input-row input{ flex:1; background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:11px 13px; color:var(--chalk); font-size:13px; }
+  .mic-btn{ background:var(--panel-2); border:1px solid var(--line); border-radius:10px; width:42px; color:var(--chalk); cursor:pointer; }
+  .mic-btn.listening{ border-color:var(--coral); color:var(--coral); }
+  .mic-btn:disabled{ opacity:.35; cursor:not-allowed; }
+  .send-btn{ background:var(--marigold); color:#241708; border:none; border-radius:10px; padding:0 16px;
+    font-family:var(--font-display); font-weight:600; font-size:11.5px; letter-spacing:1px; text-transform:uppercase; cursor:pointer; }
+
+  .transit-row{ display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr; gap:10px; align-items:center; padding:11px 0; border-bottom:1px solid var(--line); font-size:12.5px; }
+  .transit-row:last-child{ border-bottom:none; }
+  .transit-row.head{ color:var(--chalk-dim); font-family:var(--font-mono); font-size:9.5px; text-transform:uppercase; letter-spacing:.5px; }
+  .demand{ font-family:var(--font-mono); font-size:10px; padding:3px 9px; border-radius:10px; width:fit-content; }
+  .demand.high{ background:rgba(232,84,61,0.15); color:var(--coral); }
+  .demand.med{ background:rgba(242,169,59,0.15); color:var(--marigold); }
+  .demand.low{ background:rgba(95,174,124,0.15); color:var(--sage); }
+
+  .qa-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  @media (max-width:760px){ .qa-grid{ grid-template-columns:1fr 1fr; } }
+  .qa{ background:var(--panel-2); border:1px solid var(--line); border-radius:12px; padding:14px 12px; text-align:left;
+    color:var(--chalk); cursor:pointer; font-size:12.5px; line-height:1.35; }
+  .qa:hover{ border-color:var(--marigold-dim); }
+  .qa .ico{ font-size:18px; display:block; margin-bottom:8px; }
+
+  footer{ margin-top:8px; text-align:center; color:var(--chalk-dim); font-size:10.5px; font-family:var(--font-mono); }
+  [hidden]{ display:none !important; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="numeral26">26</div>
+      <div class="logo">
+        <svg viewBox="0 0 40 40" width="22" height="22">
+          <circle cx="20" cy="20" r="17" fill="#241708" opacity="0.12"/>
+          <circle cx="20" cy="20" r="17" fill="none" stroke="#241708" stroke-width="2"/>
+          <polygon points="20,10 26,14.5 24,21.5 16,21.5 14,14.5" fill="#241708"/>
+          <polygon points="20,10 26,14.5 24.5,15.6 20,12.3 15.5,15.6 14,14.5" fill="none" stroke="#241708" stroke-width="1"/>
+          <line x1="20" y1="10" x2="20" y2="3.5" stroke="#241708" stroke-width="1.6"/>
+          <line x1="26" y1="14.5" x2="32" y2="12.2" stroke="#241708" stroke-width="1.6"/>
+          <line x1="24" y1="21.5" x2="27.5" y2="27.5" stroke="#241708" stroke-width="1.6"/>
+          <line x1="16" y1="21.5" x2="12.5" y2="27.5" stroke="#241708" stroke-width="1.6"/>
+          <line x1="14" y1="14.5" x2="8" y2="12.2" stroke="#241708" stroke-width="1.6"/>
+        </svg>
+      </div>
+      <div>
+        <div class="name">V<span>Í</span>A</div>
+        <div class="sub">FIFA WORLD CUP 2026</div>
+      </div>
+    </div>
+    <nav class="navlist">
+      <button class="nav-item active" data-view="command"><span class="ico">🎛</span>Command Center</button>
+      <button class="nav-item" data-view="assist"><span class="ico">🧭</span>Fan Assist Portal</button>
+      <button class="nav-item" data-view="playground"><span class="ico">⚡</span>AI Playground</button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="tele-card"><div class="tele-label">System Telemetry</div><div class="tele-value good">Fully Operational</div></div>
+      <div class="tele-card"><div class="tele-label">Stadium Attendance</div><div class="tele-value" id="attendanceVal">—</div></div>
+      <div class="theme-row">Theme Mode <button class="switch" id="themeToggle"></button></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topheader">
+      <h1 id="viewTitle">FIFA Fan Sync &amp; Assist Portal</h1>
+      <div class="header-badges">
+        <select class="badge-select" id="matchSelect"></select>
+        <div class="badge alert" id="alertBadge">⚠ Active Alerts: 3</div>
+      </div>
+    </div>
+
+    <div class="globalbar">
+      <select id="stadiumSelect"></select>
+      <input type="text" id="sectionInput" placeholder="Your section (e.g. 118)" />
+      <select id="langSelect"></select>
+      <button class="icon-btn" id="contrastBtn" title="High contrast">AA</button>
+      <button class="icon-btn" id="textSizeBtn" title="Large text">Aa+</button>
+      <button class="icon-btn" id="autoSpeakBtn" title="Auto-read AI replies">🔊 Auto</button>
+    </div>
+
+    <section class="view" id="view-command">
+      <div class="panel" style="padding:0; overflow:hidden;">
+        <svg viewBox="0 0 900 190" width="100%" height="auto" style="display:block;" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <radialGradient id="floodlight" cx="50%" cy="0%" r="80%">
+              <stop offset="0%" stop-color="var(--marigold)" stop-opacity="0.28"/>
+              <stop offset="100%" stop-color="var(--marigold)" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="pitchGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--sage)" stop-opacity="0.22"/>
+              <stop offset="100%" stop-color="var(--sage)" stop-opacity="0.07"/>
+            </linearGradient>
+          </defs>
+          <rect width="900" height="190" fill="var(--panel-2)"/>
+          <rect width="900" height="190" fill="url(#floodlight)"/>
+
+          <!-- stadium bowl silhouette -->
+          <path d="M -20 150 Q 450 30 920 150 L 920 40 Q 450 -70 -20 40 Z" fill="var(--panel-3)" opacity="0.65"/>
+          <path d="M -20 165 Q 450 60 920 165 L 920 55 Q 450 -40 -20 55 Z" fill="var(--panel-3)" opacity="0.85"/>
+
+          <!-- floodlight masts -->
+          <g stroke="var(--chalk-dim)" stroke-width="2" opacity="0.5">
+            <line x1="60" y1="30" x2="60" y2="4"/><circle cx="60" cy="4" r="3" fill="var(--marigold)"/>
+            <line x1="840" y1="30" x2="840" y2="4"/><circle cx="840" cy="4" r="3" fill="var(--marigold)"/>
+          </g>
+
+          <!-- pitch -->
+          <rect x="0" y="150" width="900" height="40" fill="url(#pitchGrad)"/>
+          <g stroke="var(--chalk)" stroke-opacity="0.35" stroke-width="1.5" fill="none">
+            <line x1="0" y1="150" x2="900" y2="150"/>
+            <line x1="450" y1="150" x2="450" y2="190"/>
+            <circle cx="450" cy="190" r="34"/>
+          </g>
+
+          <!-- match ball -->
+          <g transform="translate(450,120)">
+            <circle r="13" fill="var(--chalk)"/>
+            <polygon points="0,-8 7,-3 4.3,6 -4.3,6 -7,-3" fill="var(--ink)"/>
+            <circle r="13" fill="none" stroke="var(--ink)" stroke-opacity="0.5" stroke-width="1"/>
+          </g>
+          <path d="M 380 128 Q 415 108 445 118" stroke="var(--chalk-dim)" stroke-width="1.2" fill="none" stroke-dasharray="2,3" opacity="0.6"/>
+
+          <text x="450" y="30" text-anchor="middle" fill="var(--chalk)" font-family="Oswald, sans-serif" font-weight="600" font-size="20" letter-spacing="2">FIFA WORLD CUP 2026</text>
+          <text x="450" y="48" text-anchor="middle" fill="var(--chalk-dim)" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.5">MATCH DAY OPERATIONS OVERVIEW</text>
+        </svg>
+      </div>
+      <div class="ticker" id="ticker"></div>
+      <div class="cmd-cards">
+        <div class="panel">
+          <h2>Active Alerts</h2>
+          <p class="sub-h">Live signals from concourse sensors &amp; fan reports</p>
+          <div id="alertsList"></div>
+        </div>
+        <div class="panel">
+          <h2>Language Mix (last hour)</h2>
+          <p class="sub-h">Concierge conversations by language</p>
+          <div id="langMix"></div>
+        </div>
+        <div class="panel jump-card">
+          <h2>Fan Assist Portal</h2>
+          <p class="sub-h">Crowd-aware navigation, multilingual concierge, and live transit — the tools fans actually use on match day.</p>
+          <button onclick="switchView('assist')">Open Portal →</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-assist" hidden>
+      <div class="assist-grid">
+        <div class="panel">
+          <h2>Smart Crowd-Aware Navigation</h2>
+          <p class="sub-h">Live concourse density by ring &amp; gate. Routes update as crowds move.</p>
+          <div class="donut-wrap" id="donutWrap">
+            <div class="ring outer" id="ringOuter"></div>
+            <div class="ring mid" id="ringMid"></div>
+            <div class="ring inner" id="ringInner"></div>
+            <div class="ring core">PITCH</div>
+            <svg class="donut-overlay" id="donutSvg" viewBox="0 0 100 100"></svg>
+            <div id="gateLabels"></div>
+          </div>
+          <div class="legend">
+            <span><i style="background:var(--sage)"></i>Low density</span>
+            <span><i style="background:var(--marigold)"></i>Medium</span>
+            <span><i style="background:var(--coral)"></i>High density</span>
+          </div>
+          <div class="form-row">
+            <div><label>My Location (Section/Gate)</label><input type="text" id="myLocation" placeholder="Section 201" /></div>
+            <div><label>Destination Point</label>
+              <select id="destSelect">
+                <option value="gate">Nearest gate</option>
+                <option value="restroom">Nearest restroom</option>
+                <option value="accessible">Accessible seat route</option>
+                <option value="food">Food &amp; concessions</option>
+                <option value="transit">Transit hub</option>
+                <option value="report">Report a safety issue</option>
+              </select>
+            </div>
+          </div>
+          <div class="route-row">
+            <button class="route-btn" id="routeBtn">🧭 Route</button>
+          </div>
+          <div class="checkbox-row"><input type="checkbox" id="stepFree" /> <label for="stepFree">Step-free route (avoid stairways &amp; elevators under maintenance)</label></div>
+          <div class="route-result" id="routeResult"></div>
+        </div>
+
+        <div class="panel concierge">
+          <div class="chat-head">
+            <h2 style="margin:0">Multilingual Fan AI Concierge</h2>
+          </div>
+          <p class="sub-h" style="margin-top:-8px">Real-time localized help. Ask anything, in any language.</p>
+          <div class="chips" id="chips"></div>
+          <div class="messages" id="messages"></div>
+          <div class="input-row">
+            <button class="mic-btn" id="micBtn" title="Speak your question">🎙</button>
+            <input id="chatInput" type="text" placeholder="Type your question…" />
+            <button class="send-btn" id="sendBtn">➤</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Crowd-Smart Transit Schedule</h2>
+        <p class="sub-h">Live transport feeds. Avoid congestion bottlenecks post-match.</p>
+        <div class="transit-row head"><div>Route</div><div>Demand</div><div>Next Departure</div><div>Wait Queue</div></div>
+        <div id="transitList"></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-playground" hidden>
+      <div class="panel">
+        <h2>AI Playground</h2>
+        <p class="sub-h">A sandbox for organizers &amp; volunteers to test concierge prompts, voice input, and quick-help flows before they ship to fans.</p>
+        <div class="qa-grid" id="qaGrid"></div>
+      </div>
+      <div class="panel concierge" style="height:480px">
+        <div class="chat-head"><h2 style="margin:0">Playground Chat</h2></div>
+        <div class="messages" id="pgMessages"></div>
+        <div class="input-row">
+          <button class="mic-btn" id="pgMicBtn" title="Speak your question">🎙</button>
+          <input id="pgChatInput" type="text" placeholder="Try a prompt…" />
+          <button class="send-btn" id="pgSendBtn">➤</button>
+        </div>
+      </div>
+    </section>
+
+    <footer>PROMPTWARS MINI-CHALLENGE PROTOTYPE · SIMULATED LIVE DATA · REAL AI RESPONSES VIA CLAUDE · VOICE VIA WEB SPEECH API</footer>
+  </main>
+</div>
+
+<script>
+const STADIUMS = [
+  {id:"azteca", name:"Estadio Azteca — Mexico City", cap:87523},
+  {id:"metlife", name:"MetLife Stadium — New York/New Jersey", cap:82500},
+  {id:"att", name:"AT&T Stadium — Dallas", cap:80000},
+  {id:"sofi", name:"SoFi Stadium — Los Angeles", cap:70240},
+  {id:"mbs", name:"Mercedes-Benz Stadium — Atlanta", cap:71000},
+  {id:"hardrock", name:"Hard Rock Stadium — Miami", cap:65326},
+  {id:"bcplace", name:"BC Place — Vancouver", cap:54500},
+  {id:"bmo", name:"BMO Field — Toronto", cap:45736},
+];
+const MATCHES = ["USA vs. Argentina","Mexico vs. Brazil","Canada vs. Germany","France vs. Japan","Spain vs. Morocco"];
+
+const LANGS = [
+  {code:"en", label:"English"}, {code:"es", label:"Español"}, {code:"fr", label:"Français"},
+  {code:"pt", label:"Português"}, {code:"de", label:"Deutsch"}, {code:"it", label:"Italiano"},
+  {code:"ar", label:"العربية"}, {code:"zh", label:"中文"}, {code:"ja", label:"日本語"},
+  {code:"ko", label:"한국어"}, {code:"hi", label:"हिन्दी"}, {code:"ru", label:"Русский"},
+];
+const LOCALE = { en:"en-US", es:"es-ES", fr:"fr-FR", pt:"pt-BR", de:"de-DE", it:"it-IT",
+  ar:"ar-SA", zh:"zh-CN", ja:"ja-JP", ko:"ko-KR", hi:"hi-IN", ru:"ru-RU" };
+
+const CHIPS = ["Cashless Policy?","Sensory Rooms?","Bag Policy?","Manhattan Transit?","Reentry Rules?"];
+
+const DEST_LABELS = {
+  gate:"the nearest gate", restroom:"the nearest restroom", accessible:"an accessible seat route",
+  food:"food & concessions", transit:"the transit hub", report:"the nearest steward for a safety report",
+};
+
+let state = { stadium: STADIUMS[0].id, lang:"en", section:"", highContrast:false, largeText:false,
+  autoSpeak:false, light:false, history:[], pgHistory:[] };
+
+document.querySelectorAll(".nav-item").forEach(btn=>{
+  btn.addEventListener("click", ()=> switchView(btn.dataset.view));
+});
+function switchView(view){
+  document.querySelectorAll(".view").forEach(v=> v.hidden = true);
+  document.getElementById("view-"+view).hidden = false;
+  document.querySelectorAll(".nav-item").forEach(b=> b.classList.toggle("active", b.dataset.view===view));
+  const titles = {command:"FIFA Fan Sync & Assist Portal", assist:"Fan Assist Portal", playground:"AI Playground"};
+  document.getElementById("viewTitle").textContent = titles[view];
+}
+
+document.getElementById("themeToggle").addEventListener("click", (e)=>{
+  state.light = !state.light;
+  document.body.classList.toggle("light", state.light);
+  e.target.classList.toggle("on", state.light);
+});
+
+const matchSelect = document.getElementById("matchSelect");
+MATCHES.forEach(m=>{ const o=document.createElement("option"); o.textContent="Match: "+m; matchSelect.appendChild(o); });
+
+const stadiumSelect = document.getElementById("stadiumSelect");
+STADIUMS.forEach(s=>{ const o=document.createElement("option"); o.value=s.id; o.textContent=s.name; stadiumSelect.appendChild(o); });
+stadiumSelect.value = state.stadium;
+function updateAttendance(){
+  const s = STADIUMS.find(s=>s.id===state.stadium);
+  const attendance = Math.round(s.cap * (0.9 + Math.random()*0.08));
+  document.getElementById("attendanceVal").textContent = attendance.toLocaleString() + " / " + s.cap.toLocaleString();
+}
+stadiumSelect.addEventListener("change", ()=>{ state.stadium = stadiumSelect.value; updateAttendance(); addMessage("sys", "Portal synced to " + STADIUMS.find(s=>s.id===state.stadium).name); });
+updateAttendance();
+
+const langSelect = document.getElementById("langSelect");
+LANGS.forEach(l=>{ const o=document.createElement("option"); o.value=l.code; o.textContent=l.label; langSelect.appendChild(o); });
+langSelect.addEventListener("change", ()=>{ state.lang = langSelect.value; if(recognition) recognition.lang = LOCALE[state.lang]||"en-US"; });
+
+const sectionInput = document.getElementById("sectionInput");
+sectionInput.addEventListener("input", ()=>{ state.section = sectionInput.value.trim(); document.getElementById("myLocation").value = state.section ? "Section "+state.section : ""; drawDonut(); });
+document.getElementById("myLocation").addEventListener("change", (e)=>{
+  const digits = (e.target.value.match(/\d+/) || [""])[0];
+  state.section = digits; sectionInput.value = digits; drawDonut();
+});
+
+document.getElementById("contrastBtn").addEventListener("click", (e)=>{ state.highContrast=!state.highContrast; document.body.classList.toggle("high-contrast", state.highContrast); e.target.classList.toggle("active", state.highContrast); });
+document.getElementById("textSizeBtn").addEventListener("click", (e)=>{ state.largeText=!state.largeText; document.body.classList.toggle("text-lg", state.largeText); e.target.classList.toggle("active", state.largeText); });
+document.getElementById("autoSpeakBtn").addEventListener("click", (e)=>{ state.autoSpeak=!state.autoSpeak; e.target.classList.toggle("active", state.autoSpeak); });
+
+const tickerEl = document.getElementById("ticker");
+function renderTicker(){
+  const gate = 8 + Math.round(Math.random()*14);
+  const crowdPct = 55 + Math.round(Math.random()*40);
+  const crowdLevel = crowdPct > 85 ? "coral" : crowdPct > 65 ? "" : "sage";
+  const temp = 24 + Math.round(Math.random()*6);
+  tickerEl.innerHTML = `
+    <div class="cell"><div class="label">Gate Wait</div><div class="value">${gate} min</div><div class="sub">Busiest: Gate C</div></div>
+    <div class="cell"><div class="label">Crowd Density</div><div class="value ${crowdLevel}">${crowdPct}%</div><div class="sub">Concourse-wide average</div></div>
+    <div class="cell"><div class="label">Weather</div><div class="value">${temp}°C</div><div class="sub">Clear, light breeze</div></div>
+    <div class="cell"><div class="label">Kickoff</div><div class="value">01:42:0${Math.round(Math.random()*9)}</div><div class="sub">Group Stage · Match 12</div></div>
+  `;
+}
+renderTicker(); setInterval(renderTicker, 4000);
+
+const ALERTS = [
+  {sev:"high", text:"Section 214 — dense crowd flagged near restroom queue"},
+  {sev:"med", text:"Gate F wait time trending up (14 min)"},
+  {sev:"low", text:"Weather advisory: light rain expected 2nd half"},
+];
+function renderAlerts(){
+  document.getElementById("alertsList").innerHTML = ALERTS.map(a=>
+    `<div class="alert-row"><span>${a.text}</span><span class="sev ${a.sev}">${a.sev.toUpperCase()}</span></div>`).join("");
+  document.getElementById("alertBadge").textContent = "⚠ Active Alerts: " + ALERTS.length;
+}
+renderAlerts();
+function renderLangMix(){
+  const mix = [["English",38],["Español",24],["Português",13],["Français",9],["中文",7],["Other",9]];
+  document.getElementById("langMix").innerHTML = mix.map(([l,p])=>
+    `<div class="alert-row"><span>${l}</span><span style="font-family:var(--font-mono);color:var(--chalk-dim)">${p}%</span></div>`).join("");
+}
+renderLangMix();
+
+const GATE_LETTERS = ["A","B","C","D","E","F","G","H"];
+const ACCESSIBLE_GATES = ["A","E"];
+function conicGradient(seedOffset){
+  const stops = GATE_LETTERS.map((_,i)=>{
+    const r = Math.random();
+    const color = r>0.7 ? "var(--coral)" : r>0.35 ? "var(--marigold)" : "var(--sage)";
+    const start = i*45, end = (i+1)*45;
+    return `${color} ${start}deg ${end}deg`;
+  });
+  return `conic-gradient(from ${seedOffset}deg, ${stops.join(",")})`;
+}
+function drawDonutRings(){
+  document.getElementById("ringOuter").style.background = conicGradient(0);
+  document.getElementById("ringMid").style.background = conicGradient(15);
+  document.getElementById("ringInner").style.background = conicGradient(30);
+}
+function polar(angleDeg, R){ const a=(angleDeg-90)*Math.PI/180; return { x:50+R*Math.cos(a), y:50+R*Math.sin(a) }; }
+function renderGateLabels(){
+  const wrap = document.getElementById("gateLabels");
+  wrap.innerHTML = "";
+  GATE_LETTERS.forEach((letter,i)=>{
+    const p = polar(i*45, 49);
+    const acc = ACCESSIBLE_GATES.includes(letter);
+    const el = document.createElement("div");
+    el.className = "gate-label" + (acc ? " acc" : "");
+    el.style.left = p.x+"%"; el.style.top = p.y+"%";
+    el.textContent = letter + (acc ? " ♿" : "");
+    wrap.appendChild(el);
+  });
+}
+function nearestGate(section){
+  if(!section) return GATE_LETTERS[2];
+  const n = parseInt(section,10); if(isNaN(n)) return GATE_LETTERS[2];
+  return GATE_LETTERS[Math.abs(n) % GATE_LETTERS.length];
+}
+let lastRoute = null;
+function drawDonut(){
+  drawDonutRings(); renderGateLabels();
+  if(lastRoute) drawRouteOverlay(lastRoute);
+  else document.getElementById("donutSvg").innerHTML = "";
+}
+function drawRouteOverlay(destKey){
+  lastRoute = destKey;
+  const svg = document.getElementById("donutSvg");
+  const accessibleMode = document.getElementById("stepFree").checked || destKey === "accessible";
+  const gateLetter = accessibleMode ? (ACCESSIBLE_GATES.find(g=> g===nearestGate(state.section)) || ACCESSIBLE_GATES[0]) : nearestGate(state.section);
+  const gi = GATE_LETTERS.indexOf(gateLetter);
+  const outerPt = polar(gi*45, 46);
+  const you = polar(90, 46);
+  const color = accessibleMode ? "var(--sage)" : "var(--marigold)";
+  svg.innerHTML = `
+    <path d="M ${you.x} ${you.y} Q 50 50 ${outerPt.x} ${outerPt.y}" fill="none" stroke="${color}" stroke-width="1.6" stroke-dasharray="2,2"/>
+    <circle cx="${you.x}" cy="${you.y}" r="2.2" fill="var(--chalk)"/>
+    <circle cx="${outerPt.x}" cy="${outerPt.y}" r="2.2" fill="${color}"/>
+  `;
+}
+
+const routeBtn = document.getElementById("routeBtn");
+const routeResult = document.getElementById("routeResult");
+routeBtn.addEventListener("click", ()=>{
+  const destKey = document.getElementById("destSelect").value;
+  drawRouteOverlay(destKey);
+  const gateLetter = nearestGate(state.section);
+  const stepFree = document.getElementById("stepFree").checked;
+  routeResult.classList.add("show");
+  routeResult.textContent = `Suggested route: via Gate ${gateLetter} concourse, avoiding high-density wedges${stepFree ? " · step-free path selected" : ""}.`;
+  const sectionLabel = state.section || "your section";
+  const prompt = `I'm at ${sectionLabel} and want to get to ${DEST_LABELS[destKey]}${stepFree ? " using a step-free route" : ""}. What's the best way, avoiding crowded areas?`;
+  sendMessage(prompt);
+});
+
+const TRANSIT_ROUTES = [
+  {name:"Express Subway (Line 6)"}, {name:"Rideshare Pickup — Lot 7"}, {name:"Shuttle Bus — Hotel District"}, {name:"Accessible Van Service"},
+];
+function renderTransit(){
+  const rows = TRANSIT_ROUTES.map(r=>{
+    const wait = 4 + Math.round(Math.random()*16);
+    const demandVal = wait > 15 ? "high" : wait > 8 ? "med" : "low";
+    const demandLabel = demandVal === "high" ? "High Demand" : demandVal === "med" ? "Medium" : "Low";
+    const depart = 2 + Math.round(Math.random()*10);
+    return `<div class="transit-row">
+      <div>${r.name}</div>
+      <div><span class="demand ${demandVal}">${demandLabel}</span></div>
+      <div>${depart} min</div>
+      <div>${wait} min</div>
+    </div>`;
+  }).join("");
+  document.getElementById("transitList").innerHTML = rows;
+}
+renderTransit(); setInterval(renderTransit, 6000);
+
+const chipsEl = document.getElementById("chips");
+CHIPS.forEach(c=>{
+  const b = document.createElement("button"); b.className="chip"; b.textContent=c;
+  b.addEventListener("click", ()=> sendMessage(c.replace("?","") + " Please explain for a fan at this stadium."));
+  chipsEl.appendChild(b);
+});
+
+const QA_ICONS = ["🧭","♿","🚻","🚌","🔤","🚨"];
+const QA_ITEMS = [
+  ["Find my gate","Directions from where you are now", ()=>`Which gate should I use for section ${state.section||"my seat"} and how do I get there?`],
+  ["Accessible route","Step-free paths & elevators", ()=>`I use a wheelchair — what's the step-free route to section ${state.section||"my seat"}?`],
+  ["Nearest restroom","Closest facilities to your section", ()=>`Where's the nearest restroom to section ${state.section||"my seat"}?`],
+  ["Transit & rideshare","Trains, buses & pickup zones", ()=>"What are my transit and rideshare options after the match?"],
+  ["Translate a sign","Describe a sign, get it explained", ()=>"A sign near my gate has red text and an unfamiliar symbol — what might it mean?"],
+  ["Report an issue","Flag safety or crowd concerns", ()=>`I want to report overcrowding near section ${state.section||"my section"} — what should I do?`],
+];
+const qaGrid = document.getElementById("qaGrid");
+QA_ITEMS.forEach(([title,desc,prompt], i)=>{
+  const btn = document.createElement("button"); btn.className="qa";
+  btn.innerHTML = `<span class="ico">${QA_ICONS[i]}</span><strong>${title}</strong><br><span style="color:var(--chalk-dim)">${desc}</span>`;
+  btn.addEventListener("click", ()=> sendMessage(prompt(), true));
+  qaGrid.appendChild(btn);
+});
+
+function speak(text){
+  if(!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = LOCALE[state.lang] || "en-US";
+  window.speechSynthesis.speak(utter);
+}
+function addMessage(role, text, playground){
+  const container = document.getElementById(playground ? "pgMessages" : "messages");
+  const row = document.createElement("div"); row.className = "msg-row " + role;
+  const bubble = document.createElement("div"); bubble.className = "msg " + role; bubble.textContent = text;
+  row.appendChild(bubble);
+  if(role === "ai"){
+    const sb = document.createElement("button"); sb.className="speak-btn"; sb.textContent="🔊 Listen";
+    sb.addEventListener("click", ()=> speak(text));
+    row.appendChild(sb);
+    if(state.autoSpeak) speak(text);
+  }
+  container.appendChild(row);
+  container.scrollTop = container.scrollHeight;
+}
+addMessage("sys", "Concierge connected · " + STADIUMS.find(s=>s.id===state.stadium).name);
+addMessage("ai", "¡Hola! Bienvenido — I'm your Fan AI Concierge. Ask about gates, transit, food, or accessibility, in any language.");
+addMessage("sys", "Playground ready — test any quick-help prompt below.", true);
+
+let apiUnavailable = false, offlineNoticeShown = false;
+function localSimulatedReply(userText){
+  const t = userText.toLowerCase();
+  const stadiumName = STADIUMS.find(s=>s.id===state.stadium).name;
+  const gate = nearestGate(state.section);
+  const sect = state.section || "your seat";
+  if(/gate|cancel policy|bag/.test(t)) return `Head to Gate ${gate} — closest entrance to section ${sect} at ${stadiumName}. It's roughly a 6-8 minute walk from the main plaza, and bags follow the standard clear-bag policy at all gates.`;
+  if(/wheelchair|accessib|step-free|elevator/.test(t)) return `The step-free route to section ${sect} goes through the accessible entrance near Gate A or E, both with ramps and staff on hand, then a concourse elevator straight to your row.`;
+  if(/restroom|toilet|bathroom|sensory/.test(t)) return `The nearest restroom to ${sect} is on the main concourse ring near Gate ${gate}. There's also a quiet sensory room on the same level for anyone who needs a low-stimulation break.`;
+  if(/transit|rideshare|bus|train|manhattan/.test(t)) return `Subway Line 6 is the fastest route back into the city from here. Shuttles to the hotel district depart from Plaza South, and rideshare pickup is exclusively at Lot 7.`;
+  if(/cashless/.test(t)) return `The venue is fully cashless — all concessions and merchandise accept card and mobile pay. Reload stations are available near every concourse ring if you need help setting up a payment method.`;
+  if(/sign|translate|symbol/.test(t)) return `Signs with red text and a triangular icon are usually safety or restricted-access notices, like "Staff Only." Describe the exact symbol and I can be more specific.`;
+  if(/reentry/.test(t)) return `Re-entry is allowed once per ticket on match day — just scan out and back in at the same gate, and keep your wristband visible.`;
+  if(/overcrowd|report|safety|issue/.test(t)) return `If you're seeing heavy crowding near ${sect}, alert the nearest steward or use the yellow help point on the concourse — both connect directly to venue operations.`;
+  return `Thanks for asking! At ${stadiumName}, section ${sect} is served by Gate ${gate}, with restrooms and food on the same concourse ring. Ask me about gates, accessibility, transit, cashless payments, or safety for more detail.`;
+}
+
+let sending = false;
+async function callClaude(userText){
+  const stadiumName = STADIUMS.find(s=>s.id===state.stadium).name;
+  const langLabel = LANGS.find(l=>l.code===state.lang).label;
+  const sectionNote = state.section ? ` The fan's ticket section is ${state.section}.` : "";
+  const system = `You are VÍA, a warm and highly practical GenAI stadium-operations concierge for FIFA World Cup 2026, currently helping a fan at ${stadiumName}.${sectionNote} Always respond in ${langLabel} (code: ${state.lang}), in 2-4 short sentences. Give concrete, actionable wayfinding, accessibility, transit, cashless-payment, food, or safety guidance appropriate for a large stadium during a major match. If details are unknown, give a realistic, plausible answer consistent with typical stadium operations rather than refusing. Be warm and clear, never robotic.`;
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:1000, system, messages:[...state.history, {role:"user", content:userText}] }),
+  });
+  const data = await response.json();
+  const block = (data.content||[]).find(c=>c.type==="text");
+  return block ? block.text : "Sorry, I couldn't reach the assistant just now.";
+}
+async function sendMessage(text, playground){
+  if(!text || sending) return;
+  sending = true;
+  document.getElementById("sendBtn").disabled = true; document.getElementById("pgSendBtn").disabled = true;
+  addMessage("user", text, playground);
+  state.history.push({role:"user", content:text});
+  document.getElementById(playground ? "pgChatInput" : "chatInput").value = "";
+
+  const container = document.getElementById(playground ? "pgMessages" : "messages");
+  const typingEl = document.createElement("div"); typingEl.className="typing"; typingEl.innerHTML="<span></span><span></span><span></span>";
+  container.appendChild(typingEl); container.scrollTop = container.scrollHeight;
+
+  if(apiUnavailable){
+    await new Promise(r=>setTimeout(r, 500+Math.random()*500));
+    typingEl.remove();
+    const reply = localSimulatedReply(text);
+    addMessage("ai", reply, playground); state.history.push({role:"assistant", content:reply});
+    sending=false; document.getElementById("sendBtn").disabled=false; document.getElementById("pgSendBtn").disabled=false;
+    return;
+  }
+  try{
+    const reply = await callClaude(text);
+    typingEl.remove();
+    addMessage("ai", reply, playground); state.history.push({role:"assistant", content:reply});
+  }catch(e){
+    typingEl.remove(); apiUnavailable = true;
+    if(!offlineNoticeShown){ offlineNoticeShown = true; addMessage("sys", "Live AI unreachable outside Claude.ai — switching to offline demo mode.", playground); }
+    const reply = localSimulatedReply(text);
+    addMessage("ai", reply, playground); state.history.push({role:"assistant", content:reply});
+  }
+  sending=false; document.getElementById("sendBtn").disabled=false; document.getElementById("pgSendBtn").disabled=false;
+}
+
+document.getElementById("sendBtn").addEventListener("click", ()=> sendMessage(document.getElementById("chatInput").value.trim()));
+document.getElementById("chatInput").addEventListener("keydown", e=>{ if(e.key==="Enter") sendMessage(e.target.value.trim()); });
+document.getElementById("pgSendBtn").addEventListener("click", ()=> sendMessage(document.getElementById("pgChatInput").value.trim(), true));
+document.getElementById("pgChatInput").addEventListener("keydown", e=>{ if(e.key==="Enter") sendMessage(e.target.value.trim(), true); });
+
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+function setupMic(btnId, inputId, playground){
+  const btn = document.getElementById(btnId);
+  if(!SR){ btn.disabled = true; btn.title = "Voice input needs Chrome or Edge."; return; }
+  btn.addEventListener("click", ()=>{
+    const rec = new SR();
+    rec.lang = LOCALE[state.lang] || "en-US";
+    rec.onstart = ()=> btn.classList.add("listening");
+    rec.onend = ()=> btn.classList.remove("listening");
+    rec.onerror = ()=> btn.classList.remove("listening");
+    rec.onresult = (e)=>{ const transcript = e.results[0][0].transcript; document.getElementById(inputId).value = transcript; sendMessage(transcript, playground); };
+    try{ rec.start(); }catch(e){}
+    recognition = rec;
+  });
+}
+setupMic("micBtn", "chatInput", false);
+setupMic("pgMicBtn", "pgChatInput", true);
+
+drawDonut();
+setInterval(drawDonutRings, 8000);
+</script>
+</body>
